@@ -1,37 +1,25 @@
-name: CI Pipeline
+name: Java CI
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   pull_request:
-    branches:
-      - main
+    branches: [ main ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout the repository
+      - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up JDK 17
+      - name: Set up JDK
         uses: actions/setup-java@v3
         with:
-          distribution: 'temurin'
-          java-version: '17'
-
-      - name: Change directory to backend (ali RisProjekt, če je to prava mapa)
-        run: cd backend # Zamenjaj 'backend' z imenom prave mape, kjer je pom.xml
-
-      - name: Cache Maven dependencies
-        uses: actions/cache@v2
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
+          java-version: '17'  # Določite ustrezno različico JDK
+          distribution: 'adopt'
 
       - name: Build with Maven
         run: mvn clean install
+        working-directory: backend  # Dodajte to vrstico
