@@ -68,6 +68,14 @@
 			<artifactId>spring-boot-starter-mail</artifactId>
 		</dependency>
 	</dependencies>
+	<profiles>
+    		<profile>
+        		<id>ci</id>
+       			<properties>
+            			<spring.profiles.active>ci</spring.profiles.active>
+        		</properties>
+    		</profile>
+	</profiles>
 
 
 	<build>
