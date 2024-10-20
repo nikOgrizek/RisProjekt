@@ -1,6 +1,10 @@
-name: Java CI
+name: Java Build and Test
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
 
 jobs:
   build:
@@ -8,25 +12,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-
+    - uses: actions/checkout@v4
     - name: Set up JDK 21
-      uses: actions/setup-java@v2
+      uses: actions/setup-java@v4
       with:
-        distribution: 'temurin'  # Določi distribucijo (npr. 'temurin')
         java-version: '21'
-
-    - name: Cache Maven packages
-      uses: actions/cache@v2
-      with:
-        path: ~/.m2
-        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-        restore-keys: ${{ runner.os }}-maven
-
+        distribution: 'temurin'
+        cache: maven
     - name: Build with Maven
-      working-directory: ./backend
-      run: mvn clean install
-
-    - name: Run tests
-      run: mvn test
+      run: mvn -B package --file pom.xml
