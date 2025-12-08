@@ -64,7 +64,7 @@ public class PotControllerTest {
         pot.setId(1L);
         pot.setIme("TestPot");
         pot.setOpis("Opis");
-        pot.setRazdalja(12.5);
+        pot.setRazdalja(12);
         pot.setPotovanje(p);
 
         when(potDao.findAll()).thenReturn(Arrays.asList(pot));
