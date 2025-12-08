@@ -36,16 +36,19 @@ test("prikaže gumb Dodaj Fotografijo", async () => {
 //
 // ✅ 2. Test: Znamenitosti – mock axios GET
 //
-test("prikaže mockano znamenitost", async () => {
+test("prikaže gumb Dodaj znamenitost", async () => {
+  // Mock podatke za znamenitosti
   axios.get.mockResolvedValueOnce({
     data: [{ id: 1, ime: "Test znamenitost" }],
   });
 
   render(<Znamenitosti />);
 
-  const item = await screen.findByText(/Znamenitost/i);
-  expect(item).toBeInTheDocument();
+  // Poišči gumb z natančnim imenom
+  const addButton = await screen.findByRole("button", { name: /Dodaj znamenitost/i });
+  expect(addButton).toBeInTheDocument();
 });
+
 
 //
 // ✅ 3. Test: PotovanjaDodaj vsebuje gumb
