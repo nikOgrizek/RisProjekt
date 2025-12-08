@@ -1,5 +1,4 @@
-import { render, screen, fireEvent, within } from "@testing-library/react";
-import { act } from "react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import App from "../App";
 import PotovanjaDodaj from "../components/Potovanja/dodajPotovanja";
 import PotovanjaVrni from "../components/Potovanja/vrniPotovanja";
@@ -24,40 +23,36 @@ beforeEach(() => {
 // ✅ 1. Test: App rendera gumb Dodaj Fotografijo
 //
 test("prikaže gumb Dodaj Fotografijo", async () => {
-  await act(async () => {
-    render(<App />);
-  });
-
-  expect(
-    screen.getByRole("button", { name: /Dodaj Fotografijo/i })
-  ).toBeInTheDocument();
+  render(<App />);
+  const button = await screen.findByRole("button", { name: /Dodaj Fotografijo/i });
+  expect(button).toBeInTheDocument();
 });
 
 //
 // ✅ 2. Test: Znamenitosti – mock axios GET
 //
 test("prikaže gumb Dodaj znamenitost", async () => {
-  // Mock podatke za znamenitosti
   axios.get.mockResolvedValueOnce({
     data: [{ id: 1, ime: "Test znamenitost" }],
   });
 
   render(<Znamenitosti />);
 
-  // Poišči gumb z natančnim imenom
+  // Poišči gumb "Dodaj znamenitost"
   const addButton = await screen.findByRole("button", { name: /Dodaj znamenitost/i });
   expect(addButton).toBeInTheDocument();
-});
 
+  // Poišči element z besedilom mockane znamenitosti
+  const item = await screen.findByText(/Test znamenitost/i);
+  expect(item).toBeInTheDocument();
+});
 
 //
 // ✅ 3. Test: PotovanjaDodaj vsebuje gumb
 //
 test("PotovanjaDodaj vsebuje gumb Dodaj potovanje", () => {
   render(<PotovanjaDodaj />);
-  expect(
-    screen.getByRole("button", { name: /Dodaj potovanje/i })
-  ).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: /Dodaj potovanje/i })).toBeInTheDocument();
 });
 
 //
@@ -65,12 +60,10 @@ test("PotovanjaDodaj vsebuje gumb Dodaj potovanje", () => {
 //
 test("vnos podatkov v formo za dodajanje potovanja", () => {
   render(<PotovanjaDodaj />);
-
-  // dobimo vse inpute z placeholder "Besedilo"
   const besediloInputs = screen.getAllByPlaceholderText(/Besedilo/i);
 
-  const imeInput = besediloInputs[0]; // prvi input je "Ime"
-  const opisInput = besediloInputs[1]; // drugi input je "Opis"
+  const imeInput = besediloInputs[0];
+  const opisInput = besediloInputs[1];
 
   fireEvent.change(imeInput, { target: { value: "Test potovanje" } });
   fireEvent.change(opisInput, { target: { value: "Opis test" } });
@@ -84,8 +77,6 @@ test("vnos podatkov v formo za dodajanje potovanja", () => {
 //
 test("Avtentikacija vsebuje polja za prijavo", () => {
   render(<Avtentikacija />);
-
-  // Če so label brez htmlFor, uporabimo getAllByLabelText in vzamemo prvi input
   const uporabniskoImeInput = screen.getAllByLabelText(/Uporabniško ime/i)[0];
   const gesloInput = screen.getAllByLabelText(/Geslo/i)[0];
 
@@ -114,10 +105,8 @@ test("PotIzbrisi vsebuje select element", () => {
 //
 test("PotDodaj omogoča vnos razdalje", () => {
   render(<PotDodaj />);
-
   const input = screen.getByPlaceholderText(/Razdalja poti/i);
   fireEvent.change(input, { target: { value: "42" } });
-
   expect(input.value).toBe("42");
 });
 
@@ -130,7 +119,6 @@ test("PotovanjaVrni prikaže mockano potovanje", async () => {
   });
 
   render(<PotovanjaVrni />);
-
   const item = await screen.findByText(/Test potovanje/i);
   expect(item).toBeInTheDocument();
 });
@@ -143,11 +131,7 @@ test("klik na Pošlji E-pošto sproži fetch", async () => {
     Promise.resolve({ json: () => Promise.resolve({ ok: true }) })
   );
 
-  await act(async () => {
-    render(<App />);
-  });
-
-  fireEvent.click(screen.getByRole("button", { name: /Pošlji E-pošto/i }));
-
+  render(<App />);
+  fireEvent.click(await screen.findByRole("button", { name: /Pošlji E-pošto/i }));
   expect(global.fetch).toHaveBeenCalledTimes(1);
 });
