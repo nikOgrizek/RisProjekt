@@ -54,13 +54,13 @@ function App() {
       <PotovanjaVrni />
       <div style={{ display: "flex", justifyContent: "space-evenly", marginTop: "20px" }}>
           <PotovanjaDodaj />
-          <PotovanjaIzbrisi />
+          <PotovanjaIzbrisi /> 
           <PotovanjaPosodobi />
         </div>
         <div style={{ display: "flex", justifyContent: "space-evenly", marginTop: "20px" }}>
         <Fotografija />
         <button onClick={handleSendEmail}>Pošlji E-pošto</button>
-        <Znamenitosti />
+        <Znamenitosti /> 
         </div>
         <VrniPoti />
         <PotDodaj />
