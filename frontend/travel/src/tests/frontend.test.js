@@ -63,10 +63,17 @@ test("PotovanjaDodaj vsebuje gumb Dodaj potovanje", () => {
 test("vnos podatkov v formo za dodajanje potovanja", () => {
   render(<PotovanjaDodaj />);
 
-  const imeInput = screen.getByPlaceholderText(/Besedilo/i);
+  // dobimo vse inpute z placeholder "Besedilo"
+  const besediloInputs = screen.getAllByPlaceholderText(/Besedilo/i);
+
+  const imeInput = besediloInputs[0]; // prvi input je "Ime"
+  const opisInput = besediloInputs[1]; // drugi input je "Opis"
+
   fireEvent.change(imeInput, { target: { value: "Test potovanje" } });
+  fireEvent.change(opisInput, { target: { value: "Opis test" } });
 
   expect(imeInput.value).toBe("Test potovanje");
+  expect(opisInput.value).toBe("Opis test");
 });
 
 //
@@ -75,8 +82,12 @@ test("vnos podatkov v formo za dodajanje potovanja", () => {
 test("Avtentikacija vsebuje polja za prijavo", () => {
   render(<Avtentikacija />);
 
-  expect(screen.getByLabelText(/Uporabniško ime/i)).toBeInTheDocument();
-  expect(screen.getByLabelText(/Geslo/i)).toBeInTheDocument();
+  // Če so label brez htmlFor, uporabimo getAllByLabelText in vzamemo prvi input
+  const uporabniskoImeInput = screen.getAllByLabelText(/Uporabniško ime/i)[0];
+  const gesloInput = screen.getAllByLabelText(/Geslo/i)[0];
+
+  expect(uporabniskoImeInput).toBeInTheDocument();
+  expect(gesloInput).toBeInTheDocument();
 });
 
 //
