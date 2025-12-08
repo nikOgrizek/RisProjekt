@@ -1,0 +1,59 @@
+name: Run frontend and backend tests with coverage
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  backend-tests:
+    name: Backend tests (Maven + JaCoCo)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Run backend tests and generate JaCoCo report
+        working-directory: ./
+        run: |
+          mvn -B -f backend/pom.xml test org.jacoco:jacoco-maven-plugin:0.8.8:report
+
+      - name: Upload backend coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-coverage
+          path: |
+            backend/target/site/jacoco/**
+            backend/target/jacoco.exec
+
+  frontend-tests:
+    name: Frontend tests (Jest coverage)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install frontend dependencies
+        working-directory: frontend/travel
+        run: npm ci
+
+      - name: Run frontend tests with coverage
+        working-directory: frontend/travel
+        run: npm test -- --coverage --watchAll=false
+
+      - name: Upload frontend coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-coverage
+          path: frontend/travel/coverage/**
