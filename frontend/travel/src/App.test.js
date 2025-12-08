@@ -1,13 +1,38 @@
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, within, waitFor } from '@testing-library/react';
 import App from './App';
 import axios from 'axios';
 import { act } from 'react';
 
 jest.mock('axios');
 
+// ✅ Mock window APIs
+global.URL.createObjectURL = jest.fn(() => 'blob:http://localhost/mock-url');
+global.open = jest.fn();
+
+// ✅ Suppress React Router Future Flag warnings
+const originalWarn = console.warn;
+beforeAll(() => {
+  console.warn = jest.fn((...args) => {
+    if (
+      args[0]?.includes?.('Future Flag') ||
+      args[0]?.includes?.('v7') ||
+      args.join(' ').includes('Future Flag')
+    ) {
+      return;
+    }
+    originalWarn(...args);
+  });
+});
+
+afterAll(() => {
+  console.warn = originalWarn;
+});
+
 beforeEach(() => {
   // default mock za VSE axios.get klice
   axios.get.mockResolvedValue({ data: [] });
+  global.URL.createObjectURL.mockClear();
+  global.open.mockClear();
 });
 
 test('renders Dodaj Fotografijo button', async () => {
@@ -28,7 +53,9 @@ test('mock axios call for znamenitosti', async () => {
   });
 
   // poišči UL za znamenitosti
-  const list = await screen.findByRole('list', { name: /znamenitosti/i });
+  const list = await waitFor(() =>
+    screen.getByRole('list', { name: /znamenitosti/i })
+  );
 
   // poišči element znotraj UL
   const item = within(list).getByText(/Test znamenitost/i);
