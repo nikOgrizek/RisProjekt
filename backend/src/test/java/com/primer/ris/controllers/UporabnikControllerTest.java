@@ -46,8 +46,8 @@ public class UporabnikControllerTest {
         mockMvc.perform(post("/uporabnik/registracija")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(u)))
-                .andExpect(status().isOk());
-                // Endpoint vrača String "Registracija uspešna!" kot plain text, ne JSON
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", is("Registracija uspešna!")));
     }
 
     @Test
