@@ -1,4 +1,6 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { act } from "react-dom/test-utils";
+import { MemoryRouter } from "react-router-dom";
 import App from "../App";
 
 import PotovanjaDodaj from "../components/Potovanja/dodajPotovanja";
@@ -16,18 +18,47 @@ import axios from "axios";
 // ✅ Globalni mock za axios
 jest.mock("axios");
 
+// ✅ Mock window.URL.createObjectURL in window.open
+global.URL.createObjectURL = jest.fn(() => "blob:http://localhost/mock-url");
+global.open = jest.fn();
+
+// ✅ Suppress React Router future flag warnings
+const originalWarn = console.warn;
+beforeAll(() => {
+  console.warn = jest.fn((...args) => {
+    if (
+      args[0]?.includes?.("Future Flag") ||
+      args[0]?.includes?.("v7") ||
+      args.join(" ").includes("Future Flag")
+    ) {
+      return;
+    }
+    originalWarn(...args);
+  });
+});
+
+afterAll(() => {
+  console.warn = originalWarn;
+});
+
 beforeEach(() => {
+  jest.clearAllMocks();
   axios.get.mockResolvedValue({ data: [] });
   axios.post.mockResolvedValue({ data: {} });
   axios.delete.mockResolvedValue({ data: {} });
   axios.put.mockResolvedValue({ data: {} });
+  global.fetch = jest.fn();
+  global.URL.createObjectURL.mockClear();
+  global.open.mockClear();
 });
 
 //
 // ✅ 1. Test: App sanity check
 //
-test("App se rendera brez napak", () => {
-  render(<App />);
+test("App se rendera brez napak", async () => {
+  await act(async () => {
+    render(<App />);
+  });
   expect(screen.getByText(/Pošlji E-pošto/i)).toBeInTheDocument();
 });
 
@@ -35,8 +66,10 @@ test("App se rendera brez napak", () => {
 // ✅ 2. Test: App vsebuje gumb Dodaj Fotografijo
 //
 test("App prikaže gumb Dodaj Fotografijo", async () => {
-  render(<App />);
-  const button = await screen.findByRole("button", { name: /Dodaj Fotografijo/i });
+  await act(async () => {
+    render(<App />);
+  });
+  const button = screen.getByRole("button", { name: /Dodaj Fotografijo/i });
   expect(button).toBeInTheDocument();
 });
 
@@ -44,18 +77,21 @@ test("App prikaže gumb Dodaj Fotografijo", async () => {
 // ✅ 3. Test: Pošlji E-pošto sproži fetch
 //
 test("klik na Pošlji E-pošto sproži fetch", async () => {
-  global.fetch = jest.fn(() =>
-    Promise.resolve({
-      json: () => Promise.resolve({ ok: true }),
-    })
-  );
+  global.fetch.mockResolvedValueOnce({
+    json: jest.fn().mockResolvedValueOnce({ ok: true }),
+  });
 
-  render(<App />);
+  await act(async () => {
+    render(<App />);
+  });
 
-  const sendButton = await screen.findByRole("button", { name: /Pošlji E-pošto/i });
-  fireEvent.click(sendButton);
+  const sendButton = screen.getByRole("button", { name: /Pošlji E-pošto/i });
+  
+  await act(async () => {
+    fireEvent.click(sendButton);
+  });
 
-  expect(global.fetch).toHaveBeenCalledTimes(1);
+  await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(1));
 });
 
 //
@@ -66,9 +102,13 @@ test("Znamenitosti prikaže mockano znamenitost", async () => {
     data: [{ id: 1, ime: "Test znamenitost" }],
   });
 
-  render(<Znamenitosti />);
+  await act(async () => {
+    render(<Znamenitosti />);
+  });
 
-  expect(await screen.findByText(/Test znamenitost/i)).toBeInTheDocument();
+  await waitFor(() =>
+    expect(screen.getByText(/Test znamenitost/i)).toBeInTheDocument()
+  );
 });
 
 //
@@ -92,20 +132,25 @@ test("PotovanjaDodaj omogoča vnos podatkov", () => {
 });
 
 //
-// ✅ 6. Avtentikacija
+// ✅ 6. Avtentikacija (fix: use getAllByLabelText for duplicate labels)
 //
-test("Avtentikacija vsebuje polja za prijavo", () => {
+test("Avtentikacija vsebuje polja za prijavo in registracijo", () => {
   render(<Avtentikacija />);
-  expect(screen.getAllByLabelText(/Uporabniško ime/i)[0]).toBeInTheDocument();
-  expect(screen.getAllByLabelText(/Geslo/i)[0]).toBeInTheDocument();
+  // Two labels for "Uporabniško ime" (registration + login), use getAll
+  const usernameLabels = screen.getAllByLabelText(/Uporabniško ime/i);
+  expect(usernameLabels.length).toBeGreaterThanOrEqual(2);
+  
+  const passwordLabels = screen.getAllByLabelText(/Geslo/i);
+  expect(passwordLabels.length).toBeGreaterThanOrEqual(2);
 });
 
 //
-// ✅ 7. Fotografija
+// ✅ 7. Fotografija (fix: use getByRole for button, not text)
 //
-test("Fotografija vsebuje input za sliko", () => {
+test("Fotografija vsebuje input za sliko in gumb", () => {
   render(<Fotografija />);
   expect(screen.getByLabelText(/Izberi sliko/i)).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: /Dodaj Fotografijo/i })).toBeInTheDocument();
 });
 
 //
@@ -127,15 +172,34 @@ test("PotDodaj omogoča vnos razdalje", () => {
 });
 
 //
-// ✅ 10. PotovanjaVrni
+// ✅ 10. PotovanjaVrni (fix: wrap in act, mock window APIs)
 //
-test("PotovanjaVrni prikaže mockano potovanje", async () => {
+test("PotovanjaVrni prikaže mockano potovanje in generira PDF", async () => {
   axios.get.mockResolvedValueOnce({
-    data: [{ id: 1, ime: "Test potovanje", opis: "Opis" }],
+    data: [{ id: 1, ime: "Test potovanje", opis: "Opis", datum_zacetka: null, datum_konca: null, drzava: "SI" }],
+  });
+  // Mock PDF generation response
+  axios.get.mockResolvedValueOnce({
+    data: new ArrayBuffer(1),
   });
 
-  render(<PotovanjaVrni />);
-  expect(await screen.findByText(/Test potovanje/i)).toBeInTheDocument();
+  await act(async () => {
+    render(<PotovanjaVrni />);
+  });
+
+  await waitFor(() =>
+    expect(screen.getByText(/Test potovanje/i)).toBeInTheDocument()
+  );
+
+  // Click "Generiraj PDF" button
+  const pdfButton = screen.getByText(/Generiraj PDF/i);
+  
+  await act(async () => {
+    fireEvent.click(pdfButton);
+  });
+
+  await waitFor(() => expect(global.URL.createObjectURL).toHaveBeenCalled());
+  expect(global.open).toHaveBeenCalled();
 });
 
 //
@@ -146,14 +210,21 @@ test("VrniPoti prikaže mockane poti", async () => {
     data: [{ id: 1, ime: "Pot 1" }],
   });
 
-  render(<VrniPoti />);
-  expect(await screen.findByText(/Pot 1/i)).toBeInTheDocument();
+  await act(async () => {
+    render(<VrniPoti />);
+  });
+
+  await waitFor(() =>
+    expect(screen.getByText(/Pot 1/i)).toBeInTheDocument()
+  );
 });
 
 //
 // ✅ 12. PotUredi
 //
-test("PotUredi se rendera", () => {
-  render(<PotUredi />);
+test("PotUredi se rendera", async () => {
+  await act(async () => {
+    render(<PotUredi />);
+  });
   expect(screen.getByText(/Uredi pot/i)).toBeInTheDocument();
 });
