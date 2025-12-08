@@ -85,7 +85,7 @@ public class PotControllerTest {
         pot.setId(7L);
         pot.setIme("NovaPot");
         pot.setOpis("Opis nove poti");
-        pot.setRazdalja(3.14);
+        pot.setRazdalja(33);
         pot.setPotovanje(p);
 
         when(potDao.save(any(Pot.class))).thenReturn(pot);
