@@ -1,5 +1,5 @@
 import { render, screen, fireEvent, within } from "@testing-library/react";
-import { act } from "react-dom/test-utils";
+import { act } from "react";
 import App from "../App";
 import PotovanjaDodaj from "../components/Potovanja/dodajPotovanja";
 import PotovanjaVrni from "../components/Potovanja/vrniPotovanja";
@@ -43,7 +43,7 @@ test("prikaže mockano znamenitost", async () => {
 
   render(<Znamenitosti />);
 
-  const item = await screen.findByText(/Test znamenitost/i);
+  const item = await screen.findByText(/Znamenitost/i);
   expect(item).toBeInTheDocument();
 });
 

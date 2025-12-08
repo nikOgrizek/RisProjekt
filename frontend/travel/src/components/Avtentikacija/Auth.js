@@ -66,68 +66,64 @@ const UserRegistrationLogin = () => {
     <div>
       <h2>Registracija</h2>
       <div>
-        <label>Uporabniško ime:</label>
-        <input
-          type="text"
-          value={registrationData.username}
-          onChange={(e) =>
-            setRegistrationData({
-              ...registrationData,
-              username: e.target.value,
-            })
-          }
-        />
-      </div>
-      <div>
-        <label>Geslo:</label>
-        <input
-          type="password"
-          value={registrationData.password}
-          onChange={(e) =>
-            setRegistrationData({
-              ...registrationData,
-              password: e.target.value,
-            })
-          }
-        />
-      </div>
-      <div>
-        <label>Ime:</label>
-        <input
-          type="text"
-          value={registrationData.name}
-          onChange={(e) =>
-            setRegistrationData({
-              ...registrationData,
-              name: e.target.value,
-            })
-          }
-        />
+        <label htmlFor="reg-username">Uporabniško ime:</label>
+<input
+  id="reg-username"
+  type="text"
+  value={registrationData.username}
+  onChange={(e) =>
+    setRegistrationData({ ...registrationData, username: e.target.value })
+  }
+/>
+
+<label htmlFor="reg-password">Geslo:</label>
+<input
+  id="reg-password"
+  type="password"
+  value={registrationData.password}
+  onChange={(e) =>
+    setRegistrationData({ ...registrationData, password: e.target.value })
+  }
+/>
+
+<label htmlFor="reg-name">Ime:</label>
+<input
+  id="reg-name"
+  type="text"
+  value={registrationData.name}
+  onChange={(e) =>
+    setRegistrationData({ ...registrationData, name: e.target.value })
+  }
+/>
+
       </div>
       <button onClick={handleRegistration}>Registriraj se</button>
       <p>{registrationMessage}</p>
 
       <h2>Prijava</h2>
       <div>
-        <label>Uporabniško ime:</label>
-        <input
-          type="text"
-          value={loginData.username}
-          onChange={(e) =>
-            setLoginData({ ...loginData, username: e.target.value })
-          }
-        />
+<label htmlFor="login-username">Uporabniško ime:</label>
+<input
+  id="login-username"
+  type="text"
+  value={loginData.username}
+  onChange={(e) =>
+    setLoginData({ ...loginData, username: e.target.value })
+  }
+/>
+
+<label htmlFor="login-password">Geslo:</label>
+<input
+  id="login-password"
+  type="password"
+  value={loginData.password}
+  onChange={(e) =>
+    setLoginData({ ...loginData, password: e.target.value })
+  }
+/>
+
       </div>
-      <div>
-        <label>Geslo:</label>
-        <input
-          type="password"
-          value={loginData.password}
-          onChange={(e) =>
-            setLoginData({ ...loginData, password: e.target.value })
-          }
-        />
-      </div>
+
       <button onClick={handleLogin}>Prijava</button>
       <p>{loginMessage}</p>
     </div>
