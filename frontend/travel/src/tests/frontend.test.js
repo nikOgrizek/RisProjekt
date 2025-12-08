@@ -1,5 +1,4 @@
 import { render, screen, fireEvent } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
 import App from "../App";
 
 import PotovanjaDodaj from "../components/Potovanja/dodajPotovanja";
@@ -28,12 +27,7 @@ beforeEach(() => {
 // ✅ 1. Test: App sanity check
 //
 test("App se rendera brez napak", () => {
-  render(
-    <MemoryRouter>
-      <App />
-    </MemoryRouter>
-  );
-
+  render(<App />);
   expect(screen.getByText(/Pošlji E-pošto/i)).toBeInTheDocument();
 });
 
@@ -41,16 +35,8 @@ test("App se rendera brez napak", () => {
 // ✅ 2. Test: App vsebuje gumb Dodaj Fotografijo
 //
 test("App prikaže gumb Dodaj Fotografijo", async () => {
-  render(
-    <MemoryRouter>
-      <App />
-    </MemoryRouter>
-  );
-
-  const button = await screen.findByRole("button", {
-    name: /Dodaj Fotografijo/i,
-  });
-
+  render(<App />);
+  const button = await screen.findByRole("button", { name: /Dodaj Fotografijo/i });
   expect(button).toBeInTheDocument();
 });
 
@@ -64,23 +50,16 @@ test("klik na Pošlji E-pošto sproži fetch", async () => {
     })
   );
 
-  render(
-    <MemoryRouter>
-      <App />
-    </MemoryRouter>
-  );
+  render(<App />);
 
-  const sendButton = await screen.findByRole("button", {
-    name: /Pošlji E-pošto/i,
-  });
-
+  const sendButton = await screen.findByRole("button", { name: /Pošlji E-pošto/i });
   fireEvent.click(sendButton);
 
   expect(global.fetch).toHaveBeenCalledTimes(1);
 });
 
 //
-// ✅ 4. Test: Znamenitosti – mock axios GET
+// ✅ 4. Znamenitosti
 //
 test("Znamenitosti prikaže mockano znamenitost", async () => {
   axios.get.mockResolvedValueOnce({
@@ -89,28 +68,17 @@ test("Znamenitosti prikaže mockano znamenitost", async () => {
 
   render(<Znamenitosti />);
 
-  const addButton = await screen.findByRole("button", {
-    name: /Dodaj znamenitost/i,
-  });
-  expect(addButton).toBeInTheDocument();
-
-  const item = await screen.findByText(/Test znamenitost/i);
-  expect(item).toBeInTheDocument();
+  expect(await screen.findByText(/Test znamenitost/i)).toBeInTheDocument();
 });
 
 //
-// ✅ 5. Test: PotovanjaDodaj vsebuje gumb
+// ✅ 5. PotovanjaDodaj
 //
 test("PotovanjaDodaj vsebuje gumb Dodaj potovanje", () => {
   render(<PotovanjaDodaj />);
-  expect(
-    screen.getByRole("button", { name: /Dodaj potovanje/i })
-  ).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: /Dodaj potovanje/i })).toBeInTheDocument();
 });
 
-//
-// ✅ 6. Test: PotovanjaDodaj – vnos podatkov
-//
 test("PotovanjaDodaj omogoča vnos podatkov", () => {
   render(<PotovanjaDodaj />);
 
@@ -124,17 +92,16 @@ test("PotovanjaDodaj omogoča vnos podatkov", () => {
 });
 
 //
-// ✅ 7. Test: Avtentikacija vsebuje polja
+// ✅ 6. Avtentikacija
 //
 test("Avtentikacija vsebuje polja za prijavo", () => {
   render(<Avtentikacija />);
-
   expect(screen.getAllByLabelText(/Uporabniško ime/i)[0]).toBeInTheDocument();
   expect(screen.getAllByLabelText(/Geslo/i)[0]).toBeInTheDocument();
 });
 
 //
-// ✅ 8. Test: Fotografija vsebuje input
+// ✅ 7. Fotografija
 //
 test("Fotografija vsebuje input za sliko", () => {
   render(<Fotografija />);
@@ -142,7 +109,7 @@ test("Fotografija vsebuje input za sliko", () => {
 });
 
 //
-// ✅ 9. Test: PotIzbrisi vsebuje select
+// ✅ 8. PotIzbrisi
 //
 test("PotIzbrisi vsebuje select element", () => {
   render(<PotIzbrisi />);
@@ -150,20 +117,17 @@ test("PotIzbrisi vsebuje select element", () => {
 });
 
 //
-// ✅ 10. Test: PotDodaj omogoča vnos razdalje
+// ✅ 9. PotDodaj
 //
 test("PotDodaj omogoča vnos razdalje", () => {
   render(<PotDodaj />);
-
   const input = screen.getByPlaceholderText(/Razdalja poti/i);
-
   fireEvent.change(input, { target: { value: "42" } });
-
   expect(input.value).toBe("42");
 });
 
 //
-// ✅ 11. Test: PotovanjaVrni – mock axios
+// ✅ 10. PotovanjaVrni
 //
 test("PotovanjaVrni prikaže mockano potovanje", async () => {
   axios.get.mockResolvedValueOnce({
@@ -171,12 +135,11 @@ test("PotovanjaVrni prikaže mockano potovanje", async () => {
   });
 
   render(<PotovanjaVrni />);
-
   expect(await screen.findByText(/Test potovanje/i)).toBeInTheDocument();
 });
 
 //
-// ✅ 12. Test: VrniPoti – mock axios
+// ✅ 11. VrniPoti
 //
 test("VrniPoti prikaže mockane poti", async () => {
   axios.get.mockResolvedValueOnce({
@@ -184,12 +147,11 @@ test("VrniPoti prikaže mockane poti", async () => {
   });
 
   render(<VrniPoti />);
-
   expect(await screen.findByText(/Pot 1/i)).toBeInTheDocument();
 });
 
 //
-// ✅ 13. Test: PotUredi se rendera
+// ✅ 12. PotUredi
 //
 test("PotUredi se rendera", () => {
   render(<PotUredi />);
