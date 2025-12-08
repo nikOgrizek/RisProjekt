@@ -29,7 +29,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: backend-coverage
-          path: backend/target/coverage/**
+          path: backend/target/site/jacoco/**
 
   frontend-tests:
     name: Frontend tests (Jest coverage)
