@@ -137,10 +137,10 @@ jobs:
 
       - name: Build backend Docker image
         run: |
-          docker build -t your-dockerhub-username/backend:latest ./backend
+          docker build -t nikogrizek/backend:latest ./backend
 
       - name: Push backend Docker image
-        run: docker push your-dockerhub-username/backend:latest
+        run: docker push nikogrizek/backend:latest
 
   # ==============================
   # Docker build & push frontend
@@ -160,10 +160,10 @@ jobs:
 
       - name: Build frontend Docker image
         run: |
-          docker build -t your-dockerhub-username/frontend:latest ./frontend/travel
+          docker build -t nikogrizek/frontend:latest ./frontend/travel
 
       - name: Push frontend Docker image
-        run: docker push your-dockerhub-username/frontend:latest
+        run: docker push nikogrizek/frontend:latest
 
   # ===============================
   # Deploy backend to Render
