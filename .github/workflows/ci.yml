@@ -1,23 +1,13 @@
-name: Java Build and Test
+name: Deprecated Java CI (disabled)
 
+# This workflow has been superseded by `.github/workflows/tests.yml`.
+# Kept for history; it will only run when manually triggered.
 on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+  workflow_dispatch:
 
 jobs:
-  build:
-
+  noop:
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up JDK 21
-      uses: actions/setup-java@v4
-      with:
-        java-version: '21'
-        distribution: 'temurin'
-        cache: maven
-    - name: Build and run tests with Maven
-      run: mvn -B clean verify --file backend/pom.xml
+      - name: Echo disabled
+        run: echo "This workflow is deprecated. Use .github/workflows/tests.yml instead."

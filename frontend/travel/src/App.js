@@ -4,6 +4,7 @@ import PotovanjaDodaj from "./components/Potovanja/dodajPotovanja";
 import PotovanjaIzbrisi from "./components/Potovanja/izbrisiPotovanje";
 import PotovanjaPosodobi from "./components/Potovanja/posodobiPotovanja";
 import PotovanjaVrni from "./components/Potovanja/vrniPotovanja";
+import VrniPoti from "./components/Pot/vrniPoti";
 import PdfGenerator from "./components/PdfGenerator/PdfGenerator";
 import Fotografija from "./components/Fotografije/Fotografije";
 import Avtentikacija from "./components/Avtentikacija/Auth";
@@ -53,19 +54,19 @@ function App() {
       <PotovanjaVrni />
       <div style={{ display: "flex", justifyContent: "space-evenly", marginTop: "20px" }}>
           <PotovanjaDodaj />
-          <PotovanjaIzbrisi />
+          <PotovanjaIzbrisi /> 
           <PotovanjaPosodobi />
         </div>
         <div style={{ display: "flex", justifyContent: "space-evenly", marginTop: "20px" }}>
         <Fotografija />
         <button onClick={handleSendEmail}>Pošlji E-pošto</button>
-        <Znamenitosti />
+        <Znamenitosti /> 
         </div>
-        <vrniPoti />
+        <VrniPoti />
         <PotDodaj />
         <PotUredi />
         <PotIzbrisi />
-
+ 
         <Avtentikacija />
         {/* Include other components as needed */}
       </div>
