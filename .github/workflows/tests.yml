@@ -194,3 +194,17 @@ jobs:
         run: |
           curl -X POST https://api.render.com/deploy/srv-frontend-id \
             -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}"
+
+  # ===============================
+  # Deploy static description site to GitHub Pages
+  # ===============================
+  deploy-pages:
+      name: Deploy GitHub Pages
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v4
+        - name: Deploy to GitHub Pages
+          uses: peaceiris/actions-gh-pages@v5
+          with:
+            github_token: ${{ secrets.GITHUB_TOKEN }}
+            publish_dir: ./docs
