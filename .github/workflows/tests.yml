@@ -63,6 +63,38 @@ jobs:
           path: frontend/travel/coverage/**
 
   # ===============================
+  # Deploy sonarcloud analysis
+  # ===============================
+  sonarcloud:
+    name: SonarCloud Analysis
+    runs-on: ubuntu-latest
+    needs:
+      - backend-tests
+      - frontend-tests
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download backend coverage
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-coverage
+          path: backend/target
+
+      - name: Download frontend coverage
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-coverage
+          path: frontend/travel/coverage
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@v2
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  # ===============================
   # Backend build
   # ===============================
   backend-build:
@@ -209,6 +241,9 @@ jobs:
             github_token: ${{ secrets.GITHUB_TOKEN }}
             publish_dir: ./docs
 
+  # ===============================
+  # Deploy development DOCKER images
+  # ===============================
   deploy-dev:
     name: Deploy to Development
     runs-on: ubuntu-latest
@@ -230,10 +265,14 @@ jobs:
         run: |
           docker build -t ${{ secrets.DOCKER_USERNAME }}/frontend:dev ./frontend/travel
           docker push ${{ secrets.DOCKER_USERNAME }}/frontend:dev
-    
+  
+  # ===============================
+  # Deploy production DOCKER images
+  # ===============================
   deploy-prod:
     name: Deploy to Production
     runs-on: ubuntu-latest
+    needs: quality-gate
     environment: Production
     steps:
       - uses: actions/checkout@v4
@@ -251,4 +290,18 @@ jobs:
         run: |
           docker build -t ${{ secrets.DOCKER_USERNAME }}/frontend:prod ./frontend/travel
           docker push ${{ secrets.DOCKER_USERNAME }}/frontend:prod
-  
+
+  # ===============================
+  # sonarcloud gate analysis
+  # ===============================
+  quality-gate:
+    name: SonarCloud Quality Gate
+    runs-on: ubuntu-latest
+    needs: sonarcloud
+
+    steps:
+      - name: Check Quality Gate
+        uses: SonarSource/sonarcloud-quality-gate-action@v1.1.0
+        timeout-minutes: 5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
